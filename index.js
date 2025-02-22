@@ -64,7 +64,23 @@ app.delete('/api/persons/:id', (request, response) => {
 
 app.post('/api/persons', (request, response) => {
     const body = request.body
+    const name = body.name
+    const number = body.number
+    const nameExist = persons.some(person => person.name === name)
 
+    if(!name){
+        return response.status(400).json({
+            error: 'name is missing'
+        })
+    } else if(!number){
+        return response.status(400).json({
+            error: 'number is missing'
+        })
+    } else if(nameExist){
+        return response.status(400).json({
+            error: 'name must be unique'
+        })
+    }
     const person = {
         id: getId(),
         name: body.name,
