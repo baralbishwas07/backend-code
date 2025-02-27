@@ -53,11 +53,17 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-    const date = new Date()
-    response.send(`
-        <p>Phonebook has info for ${persons.length} people</p>
-        <p>${date}</p>
+    Person.countDocuments()
+    .then(count => {
+        const date = new Date()
+        response.send(`
+            <p>Phonebook has info for ${count} people</p>
+            <p>${date}</p>
         `)
+    })
+    .catch(error => {
+        response.status(500).send({error: 'Error retrieving data'})
+    })
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -102,6 +108,20 @@ app.post('/api/persons', (request, response) => {
     person.save().then(savedPerson => {
         response.json(savedPerson)
     })
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+
+    const note = {
+        name: request.body.name,
+        number: request.body.number
+    }
+
+    Person.findByIdAndUpdate(request.params.id, note, {new: true})
+    .then(updatedPerson => {
+        response.json(updatedPerson)
+    })
+    .catch(error => next(error))
 })
 
 const errorHandler = (error, request, response, next) => {
